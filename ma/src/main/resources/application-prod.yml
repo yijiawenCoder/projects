@@ -1,0 +1,15 @@
+# 线上配置文件
+
+# 注意开源时这个文件不要提交、或者不要填真实配置
+spring:
+  # DataSource Config
+  datasource:
+    driver-class-name:
+    url:
+    username:
+    password:
+  # session 失效时间
+  session:
+    timeout:
+server:
+  address:
