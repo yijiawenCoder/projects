@@ -6,7 +6,8 @@ public enum ErrorCode {
     PARAMS_NULL_ERRORS("40000", "参数错误", ""),
     NO_AUTH("40101", "未登录", ""),
     SYSTEM_ERROR("50000", "系统错误", ""),
-    NO_LOGIN("40100", "未登录", "");
+    NO_LOGIN("40100", "未登录", ""),
+    NO_PERMISSION("40102", "没有权限", "");
 
     /**
      * 状态码信息

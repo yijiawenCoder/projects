@@ -18,6 +18,10 @@ public class ResultUtil {
 
         return new BaseResponse<>("0", "ok", data,"");
     }
+    public static <T> BaseResponse<T> success(T data,String description) {
+
+        return new BaseResponse<>("0", "ok", data,description);
+    }
 
     /**
      * 失败

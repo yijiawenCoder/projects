@@ -2,6 +2,7 @@ package com.yijiawen.userSystem.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yijiawen.userSystem.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 /**
@@ -10,7 +11,10 @@ import com.yijiawen.userSystem.entity.User;
 * @createDate 2024-04-22 17:15:01
 */
 public interface UserService extends IService<User> {
-
+    String register(String userAccount, String userPassword,String checkPassword,String userName);
+    String login (String userAccount, String userPassword, HttpServletRequest request);
+   User getCurrentUser(HttpServletRequest request);
+   boolean deleteById(String userId,HttpServletRequest request);
 
 
 }

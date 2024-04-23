@@ -2,27 +2,28 @@ spring:
   application:
     name: user-service
 
-    #?????
+    #数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/userdatabase?allowPublicKeyRetrieval=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
-    #session????
+    #session保存时间（s）
     session:
       timeout: 86400
-    # redis ??
+    # redis配置项
     redis:
       port: 6379
       host: 127.0.0.1
       database: 0
       password:
 
-#??mybatis-plus???????
+#关闭mybatis-plus自动驼峰命名
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
-# springdoc-openapi????
+
+# swawger文档地址http://127.0.0.1:8080/api/doc.html
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -34,10 +35,10 @@ springdoc:
     - group: 'default'
       paths-to-match: '/**'
       packages-to-scan: com.yijiawen.userSystem
-# knife4j???????????????
-knife4j:
-  enable: true
-  setting:
-    language: zh_cn
+
+server:
+  port: 8081
+  servlet:
+    context-path: /api
 
 

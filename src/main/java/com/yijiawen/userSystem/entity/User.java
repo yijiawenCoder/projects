@@ -1,9 +1,6 @@
 package com.yijiawen.userSystem.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,7 +16,7 @@ public class User implements Serializable {
     /**
      * 用户唯一标识符
      */
-    @TableId
+    @TableId(type = IdType.ASSIGN_UUID)
     private String userId;
 
     /**

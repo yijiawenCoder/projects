@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration debug="true" scan="true" scanPeriod="30seconds">
+    <!-- scan:当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+     scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+     debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。-->
+
+    <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别 从左显示5个字符宽度  %msg：日志消息，%n是换行符-->
+    <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>-->
+    <!--配置规则类的位置-->
+    <springProperty scope="context" name="logFileDir" source="logback.logFileDir"/>
+  <!--  <conversionRule conversionWord="ip" converterClass="com.gomoney.auth.common.log.IPLogConfig" />
+    <conversionRule conversionWord="url" converterClass="com.gomoney.auth.common.log.UserRequestUrlConfig" />
+    <conversionRule conversionWord="empId" converterClass="com.gomoney.auth.common.log.UserLogConfig"/>-->
+    <!--配置日志的格式-->
+    <property name="CONSOLE_LOG_PATTERN"
+              value=" %date{yyyy-MM-dd HH:mm:ss} | %highlight(%-5level) | %yellow(%thread) | %green(%logger) | %msg%n"/>
+    <property name="FILE_LOG_PATTERN"
+              value=" %date{yyyy-MM-dd HH:mm:ss} | %highlight(%-5level) | %yellow(%thread) | %green(%logger) | %msg%n"/>
+    <!--路径不能使用相对路径  路劲上的分隔符 windows 上和linux上不一样 -->
+    <property name="LOG_PATH" value="logs"/>
+    <property name="APPENFER_NAME_CONSOLE" value="CONSOLE"/>
+    <property name="APPENDER_NAME_FILE" value="FILE"/>
+    <property name="SPRING_PROFILE_TESR" value="test"/>
+    <property name="ROOT_LOG_LEVEL" value="debug"/>
+
+    <!-- 过滤器，只记录DEBUG级别的日志 -->
+    <!--    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>-->
+    <!--按照环境的不同使用不同的日志文件  激活的方式是：java -jar xxx.jar -|-spring.profiles.active=prod-->
+    <!--<springProfile name="${SPRING_PROFILE_TESR}">-->
+    <!--控制台输出日志的格式-->
+    <appender name="${APPENFER_NAME_CONSOLE}" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--日志文件的配置-->
+    <appender name="${APPENDER_NAME_FILE}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <Prudent>true</Prudent>
+        <!--<File>${LOG_PATH}/catalina-out.log</File>-->
+        <!--日志文件 滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件 输出的文件名的格式 以及归档的分隔方式-->
+            <FileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}-info.%i.log</FileNamePattern> <!--有敏感符号 创建不成功-->
+            <!--<FileNamePattern>\usr\project\logs\server-cluster\test_cluster_master_log-%d{yyyy-MM-dd}-%i.log</FileNamePattern>-->
+            <!--保留日志文件的天数-->
+            <MaxHistory>2</MaxHistory>
+            <maxFileSize>10MB</maxFileSize>
+            <totalSizeCap>20MB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder><!--class属性 可以省去-->
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!--以日期为基础 分隔日志文件 -->
+        <!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    &lt;!&ndash;<FileNamePattern>${LOG_FILE_PATH}.%d{yyyy-MM-dd HH:mm:ss}.log</FileNamePattern>&ndash;&gt;
+                    <FileNamePattern>${LOG_PATH}/slave-error-%i.log</FileNamePattern>
+                    <MaxHistory>1</MaxHistory>
+                </rollingPolicy>-->
+
+        <!--按照大小的方式 分隔日志文件-->
+        <!--
+                <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                     <maxFileSize>1MB</maxFileSize>
+                 </triggeringPolicy>
+        -->
+
+
+    </appender>
+    <!--</springProfile>-->
+
+    <!--只能有此一个标签  定义输出日志信息的 级别 五个级别：从低到高分为TRACE < DEBUG < INFO < WARN < ERROR < FATAL -->
+    <root level="${ROOT_LOG_LEVEL}">
+        <appender-ref ref="${APPENFER_NAME_CONSOLE}"/>
+        <appender-ref ref="${APPENDER_NAME_FILE}"/>
+    </root>
+
+
+    <!--myibatis log configure-->
+    <logger name="com.apache.ibatis" level="TRACE"/>
+    <logger name="java.sql.Connection" level="DEBUG"/>
+    <logger name="java.sql.Statement" level="DEBUG"/>
+    <logger name="java.sql.PreparedStatement" level="DEBUG"/>
+
+    <!--日志异步到数据库 -->
+    <!--<appender name="DB" class="ch.qos.logback.classic.db.DBAppender">
+        &lt;!&ndash;日志异步到数据库 &ndash;&gt;
+        <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">
+            &lt;!&ndash;连接池 &ndash;&gt;
+            <dataSource class="com.mchange.v2.c3p0.ComboPooledDataSource">
+                <driverClass>com.mysql.jdbc.Driver</driverClass>
+                <url>jdbc:mysql://127.0.0.1:3306/databaseName</url>
+                <user>root</user>
+                <password>root</password>
+            </dataSource>
+        </connectionSource>
+    </appender>-->
+</configuration>
