@@ -34,7 +34,10 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
     UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-
+    /***
+     * 加密器
+     * @param passwordEncoder 加密工具
+     */
     public UserServiceImp(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
@@ -94,7 +97,13 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
 
     }
 
-
+    /***
+     *
+     * @param userAccount  用户账号
+     * @param userPassword 用户密码
+     * @param request   把session存放在redis里面
+     * @return 用户id
+     */
     public String login(String userAccount, String userPassword, HttpServletRequest request) {
         //校验
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
@@ -184,13 +193,61 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
 
     /***
      *
-     * @param request 根据登录用户统一鉴权
+     * @param user  已经更改的用户信息
+     * @param request  获得登录的用户
+     * @return 是否成功
+     */
+    @Override
+    public boolean update(User user, HttpServletRequest request) {
+
+        //鉴权
+        if (getLoginUser(request).getUserId() != user.getUserId() && !isAdmin(request)) {
+            throw new BusinessException(ErrorCode.NO_PERMISSION, "无权限");
+        }
+
+        int row = userMapper.updateById(user);
+        //TODO 返回失败修改
+
+
+        return true;
+
+    }
+
+    /***
+     * 获得当前登录的用户信息
+     * @param request 通过session获得当前登录的用户用户
+     * @return 返回已经登录的用户信息
+     */
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "用户未登录");
+        }
+
+        return (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+    }
+
+    /***
+     *
+     * @param request 根据登录用户session统一鉴权
      * @return true管理员 false 普通用户
      */
     public boolean isAdmin(HttpServletRequest request) {
         Object userObject = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObject;
         if (user == null || user.getUserRole() != Admin_Role) {
+            return false;
+        }
+        return true;
+    }
+
+    /***
+     *
+     * @param loginUser    根据用户鉴权
+     * @return 管理员 false 普通用户
+     */
+    public boolean isAdmin(User loginUser) {
+        if (loginUser == null || loginUser.getUserRole() != Admin_Role) {
             return false;
         }
         return true;
