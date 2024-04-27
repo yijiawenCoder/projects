@@ -118,6 +118,12 @@
             <artifactId>spring-session-data-redis</artifactId>
             <version>3.1.1</version>
         </dependency>
+       <!-- 只引入redisson-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.29.0</version>
+        </dependency>
 
 
 

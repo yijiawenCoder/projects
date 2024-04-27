@@ -2,6 +2,7 @@ package com.yijiawen.userSystem.service.imp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yijiawen.userSystem.common.ErrorCode;
 import com.yijiawen.userSystem.entity.User;
@@ -11,11 +12,15 @@ import com.yijiawen.userSystem.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +38,8 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
     @Resource
     UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    @Resource
+    RedisTemplate redisTemplate;
 
     /***
      * 加密器
@@ -135,7 +142,8 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERRORS, "账号密码不匹配");
         }
         request.getSession().setAttribute(USER_LOGIN_STATE, loginUser);
-        return loginUser.getUserId();
+        User u = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        return u.getUserId();
 
 
     }
@@ -220,11 +228,39 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        if (request == null) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "用户未登录");
-        }
 
-        return (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (request == null) {
+            return null;
+        }
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (userObj == null) {
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        return (User) userObj;
+    }
+
+    @Override
+    public Page<User> getRecommendUsers(long pageSize, long pageNum, HttpServletRequest request) {
+        User loginUser = getLoginUser(request);
+
+        String userRedisKey = String.format("userSystem_user_recommend_%s", loginUser.getUserId());
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        //如果有缓存直接读取缓存
+        Page userPage = (Page<User>) valueOperations.get(userRedisKey);
+        if (userPage != null) {
+            return userPage;
+        } else {
+
+            QueryWrapper queryWrapper = new QueryWrapper();
+            userPage = page(new Page<>(pageNum, pageSize), queryWrapper);
+            try {
+                valueOperations.set(userRedisKey, userPage,30000, TimeUnit.MILLISECONDS);
+            } catch (Exception e){
+                log.error("redis insert error");
+            }
+        }
+        return userPage;
+
     }
 
     /***

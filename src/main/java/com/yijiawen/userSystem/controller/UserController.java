@@ -1,6 +1,8 @@
 package com.yijiawen.userSystem.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yijiawen.userSystem.common.BaseResponse;
 import com.yijiawen.userSystem.common.ErrorCode;
 import com.yijiawen.userSystem.entity.User;
@@ -62,7 +64,7 @@ public class UserController {
     }
 
     /***
-     *
+     *  获取当前登录的用户
      * @param request 取出存放在redis里面的session
      * @return 用户所有信息
      */
@@ -71,7 +73,12 @@ public class UserController {
         return ResultUtil.success(userService.getCurrentUser(request));
     }
 
-
+    /***
+     *  根据用户id逻辑删除
+     * @param userId 用户id
+     * @param request 只能自己或管理员注销
+     * @return 是否成功
+     */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteUser(String userId, HttpServletRequest request) {
         // 检查用户ID是否为空
@@ -82,6 +89,12 @@ public class UserController {
         return ResultUtil.success(userService.deleteById(userId, request));
     }
 
+    /***
+     *
+     * @param user 更改的信息
+     * @param request  鉴权
+     * @return 是否成功
+     */
     @PostMapping("/update")
     public BaseResponse<Boolean> updateUserMessage(User user, HttpServletRequest request) {
 
@@ -96,7 +109,12 @@ public class UserController {
 
     }
 
+    @GetMapping("/recommend")
+    public BaseResponse<Page<User>> recommendUsers(long pageSize,long pageNum, HttpServletRequest request) {
 
+        Page<User> recommendUsers = userService.getRecommendUsers(pageSize, pageNum, request);
+        return ResultUtil.success(recommendUsers);
+    }
     //TODO  根据前端页面查询所有用户
 
 

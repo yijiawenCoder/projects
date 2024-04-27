@@ -1,8 +1,11 @@
 package com.yijiawen.userSystem.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yijiawen.userSystem.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 
 /**
@@ -22,6 +25,7 @@ public interface UserService extends IService<User> {
     boolean update(User user, HttpServletRequest request);
 
     User getLoginUser (HttpServletRequest request);
+    Page<User> getRecommendUsers(long pageSize, long pageNum, HttpServletRequest request);
 
 
 }
