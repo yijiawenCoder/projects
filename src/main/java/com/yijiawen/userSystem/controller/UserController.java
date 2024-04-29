@@ -1,21 +1,17 @@
 package com.yijiawen.userSystem.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yijiawen.userSystem.common.BaseResponse;
 import com.yijiawen.userSystem.common.ErrorCode;
-import com.yijiawen.userSystem.entity.User;
+import com.yijiawen.userSystem.model.entity.User;
 import com.yijiawen.userSystem.exception.BusinessException;
-import com.yijiawen.userSystem.request.UserLoginRequest;
-import com.yijiawen.userSystem.request.UserRegisterRequest;
+import com.yijiawen.userSystem.model.dto.request.UserLoginRequest;
+import com.yijiawen.userSystem.model.dto.request.UserRegisterRequest;
 import com.yijiawen.userSystem.service.UserService;
 import com.yijiawen.userSystem.utils.ResultUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")

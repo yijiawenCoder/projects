@@ -2,8 +2,7 @@ package com.yijiawen.userSystem.job;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yijiawen.userSystem.entity.User;
-import com.yijiawen.userSystem.mapper.UserMapper;
+import com.yijiawen.userSystem.model.entity.User;
 import com.yijiawen.userSystem.service.UserService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

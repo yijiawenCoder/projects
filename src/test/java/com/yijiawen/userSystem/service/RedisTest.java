@@ -1,6 +1,6 @@
 package com.yijiawen.userSystem.service;
 
-import com.yijiawen.userSystem.entity.User;
+import com.yijiawen.userSystem.model.entity.User;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

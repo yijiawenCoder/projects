@@ -2,10 +2,8 @@ package com.yijiawen.userSystem.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.yijiawen.userSystem.entity.User;
+import com.yijiawen.userSystem.model.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
-
-import java.util.List;
 
 
 /**

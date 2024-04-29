@@ -1,4 +1,4 @@
-package com.yijiawen.userSystem.request;
+package com.yijiawen.userSystem.model.dto.request;
 
 import lombok.Data;
 

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yijiawen.userSystem.common.ErrorCode;
-import com.yijiawen.userSystem.entity.User;
+import com.yijiawen.userSystem.model.entity.User;
 import com.yijiawen.userSystem.exception.BusinessException;
 import com.yijiawen.userSystem.mapper.UserMapper;
 import com.yijiawen.userSystem.service.UserService;
@@ -19,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -246,12 +245,12 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
         String userRedisKey = String.format("userSystem_user_recommend_%s", loginUser.getUserId());
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
         //如果有缓存直接读取缓存
-        Page userPage = (Page<User>) valueOperations.get(userRedisKey);
+        Page<User> userPage = (Page<User>) valueOperations.get(userRedisKey);
         if (userPage != null) {
             return userPage;
         } else {
 
-            QueryWrapper queryWrapper = new QueryWrapper();
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             userPage = page(new Page<>(pageNum, pageSize), queryWrapper);
             try {
                 valueOperations.set(userRedisKey, userPage,30000, TimeUnit.MILLISECONDS);

@@ -1,4 +1,4 @@
-package com.yijiawen.userSystem.entity;
+package com.yijiawen.userSystem.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
