@@ -5,6 +5,7 @@ import com.yijiawen.userSystem.common.BaseResponse;
 import com.yijiawen.userSystem.common.ErrorCode;
 import com.yijiawen.userSystem.model.dto.TeamQuery;
 import com.yijiawen.userSystem.model.dto.request.TeamJoinRequest;
+import com.yijiawen.userSystem.model.dto.request.TeamQuitRequest;
 import com.yijiawen.userSystem.model.dto.request.TeamUpdateRequest;
 import com.yijiawen.userSystem.model.entity.Team;
 import com.yijiawen.userSystem.exception.BusinessException;
@@ -63,7 +64,7 @@ public class TeamController {
         return ResultUtil.success(resId);
     }
 
-    @PostMapping("joinTeam")
+    @PostMapping("/joinTeam")
     private BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
         if (teamJoinRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERRORS);
@@ -73,5 +74,13 @@ public class TeamController {
         return ResultUtil.success(res);
 
 
+    }
+
+    @PostMapping("/quitTeam")
+    public BaseResponse<Boolean> quitTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
+        if (teamQuitRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERRORS);
+        }
+        return ResultUtil.success(teamService.quitTeam(teamQuitRequest, request));
     }
 }

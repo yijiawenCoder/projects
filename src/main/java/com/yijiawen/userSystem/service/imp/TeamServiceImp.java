@@ -12,6 +12,7 @@ import com.yijiawen.userSystem.common.ErrorCode;
 import com.yijiawen.userSystem.mapper.UserTeamMapper;
 import com.yijiawen.userSystem.model.dto.TeamQuery;
 import com.yijiawen.userSystem.model.dto.request.TeamJoinRequest;
+import com.yijiawen.userSystem.model.dto.request.TeamQuitRequest;
 import com.yijiawen.userSystem.model.dto.request.TeamUpdateRequest;
 import com.yijiawen.userSystem.model.entity.Team;
 import com.yijiawen.userSystem.model.entity.User;
@@ -42,6 +43,7 @@ public class TeamServiceImp extends ServiceImpl<TeamMapper, Team>
     UserTeamMapper userTeamMapper;
 
     @Override
+    //todo 并发请求会出现问题 待优化
     public String addTeam(Team team, HttpServletRequest request) {
         if (team == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERRORS);
@@ -104,6 +106,7 @@ public class TeamServiceImp extends ServiceImpl<TeamMapper, Team>
 
     }
 
+    //todo 并发请求会出现问题 待优化
     @Override
     public List<TeamListVO> listTeams(TeamQuery teamQuery) {
         QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
@@ -172,6 +175,7 @@ public class TeamServiceImp extends ServiceImpl<TeamMapper, Team>
      * @param request
      * @return 被修改的队伍id
      */
+    //todo 并发请求会出现问题 待优化
     @Override
     public String updateTeam(TeamUpdateRequest teamUpdateRequest, HttpServletRequest request) {
         if (teamUpdateRequest == null) {
@@ -207,6 +211,7 @@ public class TeamServiceImp extends ServiceImpl<TeamMapper, Team>
 
     }
 
+    //todo 并发请求会出现问题 待优化
     @Override
     public boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
 //参数不能为空
@@ -268,7 +273,52 @@ public class TeamServiceImp extends ServiceImpl<TeamMapper, Team>
     }
 
     @Override
-    public boolean quitTeam(Long teamId, HttpServletRequest request) {
+    public boolean quitTeam(TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
+        if (teamQuitRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERRORS, "参数为空");
+        }
+        User loginUser = userService.getLoginUser(request);
+        Team team = this.getById(teamQuitRequest.getTeamId());
+        if (team == null) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "队伍不存在");
+        }
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", loginUser.getUserId());
+        queryWrapper.eq("teamId", team.getTeamId());
+        long count = userTeamService.count(queryWrapper);
+        if (count == 0) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "没加入");
+        }
+        if (userTeamService.getCurrentTeamJoinCount(teamQuitRequest.getTeamId()) == 1) {
+            //删除队伍以及关系
+            this.removeById(team.getTeamId());
+            QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("teamId", team.getTeamId());
+            //删除所有的user_team关系
+            userTeamService.remove(userTeamQueryWrapper);
+        } else {
+            if (team.getUserId().equals(loginUser.getUserId())) {
+                QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("teamId", team.getTeamId());
+                userTeamQueryWrapper.last("order by joinTime  asc limit 2");
+                List<UserTeam> userTeamList = userTeamService.list(userTeamQueryWrapper);
+                if(CollectionUtils.isEmpty(userTeamList) || userTeamList.size() < 2){
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+                }
+                UserTeam userTeam = userTeamList.get(1);
+                //更新新队长id
+                Team updateTeam = new Team();
+                updateTeam.setTeamId(userTeam.getUserId());
+               if(!this.updateById(updateTeam)){
+                   throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+               }
+                //删除原队长关系
+          QueryWrapper<UserTeam> teamLeaderQueryWrapper = new QueryWrapper<>();
+          teamLeaderQueryWrapper.eq("teamId", team.getTeamId());
+          teamLeaderQueryWrapper.eq("userId", loginUser.getUserId());
+         return userTeamService.remove(teamLeaderQueryWrapper);
+            }
+        }
         return false;
     }
 
