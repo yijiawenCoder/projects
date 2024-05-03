@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.yijiawen.userSystem.common.BaseResponse;
 import com.yijiawen.userSystem.common.ErrorCode;
 import com.yijiawen.userSystem.model.dto.TeamQuery;
+import com.yijiawen.userSystem.model.dto.request.TeamJoinRequest;
+import com.yijiawen.userSystem.model.dto.request.TeamUpdateRequest;
 import com.yijiawen.userSystem.model.entity.Team;
 import com.yijiawen.userSystem.exception.BusinessException;
 import com.yijiawen.userSystem.model.vo.TeamListVO;
@@ -11,7 +13,7 @@ import com.yijiawen.userSystem.service.TeamService;
 import com.yijiawen.userSystem.utils.ResultUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.BeanUtils;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public class TeamController {
     @Resource
     TeamService teamService;
 
-    @PostMapping("/addTeam")
+    @PostMapping("/createTeam")
     public BaseResponse<String> addTeam(@RequestBody Team team, HttpServletRequest request) {
         if (team == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERRORS);
@@ -44,4 +46,32 @@ public class TeamController {
 
     }
 
+    /***
+     * 前端根据dto按需传入要修改的内容
+     * @param teamUpdateRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/updateTeam")
+    public BaseResponse<String> updateTeam(@RequestBody TeamUpdateRequest teamUpdateRequest, HttpServletRequest request) {
+        if (teamUpdateRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERRORS);
+        }
+        String resId = teamService.updateTeam(teamUpdateRequest, request);
+
+
+        return ResultUtil.success(resId);
+    }
+
+    @PostMapping("joinTeam")
+    private BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
+        if (teamJoinRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERRORS);
+        }
+        boolean res = teamService.joinTeam(teamJoinRequest, request);
+
+        return ResultUtil.success(res);
+
+
+    }
 }

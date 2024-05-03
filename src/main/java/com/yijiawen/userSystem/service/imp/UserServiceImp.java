@@ -238,6 +238,13 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
         return (User) userObj;
     }
 
+    /***
+     * 推荐缓存中的数据
+     * @param pageSize
+     * @param pageNum
+     * @param request
+     * @return
+     */
     @Override
     public Page<User> getRecommendUsers(long pageSize, long pageNum, HttpServletRequest request) {
         User loginUser = getLoginUser(request);

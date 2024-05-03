@@ -25,5 +25,6 @@ public interface UserService extends IService<User> {
     User getLoginUser (HttpServletRequest request);
     Page<User> getRecommendUsers(long pageSize, long pageNum, HttpServletRequest request);
 
-
+    boolean isAdmin(HttpServletRequest request);
+    boolean isAdmin(User loginUser);
 }

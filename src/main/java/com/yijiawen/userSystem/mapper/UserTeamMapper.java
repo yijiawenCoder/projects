@@ -8,8 +8,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 public interface UserTeamMapper extends BaseMapper<UserTeam> {
-    @Select({ "select u.avatar from user_team ut\n" +
-            "left join user u on u.userId=ut.userId and ut.isDelete=1\n" +
-            "where teamId=#{teamId}" })
+    @Select({ "select u.avatar from user u\n" +
+            "left join user_team ut on teamId = #{teamId} and u.userId = ut.userId"})
     List<String> joinUserAvatarUrl(@Param("teamId")String teamId);
 }

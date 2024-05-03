@@ -8,8 +8,6 @@ import java.util.List;
 public class TeamQuery {
     private String id;
 
-
-
     /**
      * 搜索关键词（同时对队伍名称和描述搜索）
      */

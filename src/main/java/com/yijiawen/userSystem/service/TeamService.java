@@ -2,6 +2,8 @@ package com.yijiawen.userSystem.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yijiawen.userSystem.model.dto.TeamQuery;
+import com.yijiawen.userSystem.model.dto.request.TeamJoinRequest;
+import com.yijiawen.userSystem.model.dto.request.TeamUpdateRequest;
 import com.yijiawen.userSystem.model.entity.Team;
 import com.yijiawen.userSystem.model.vo.TeamListVO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,5 +20,8 @@ public interface TeamService extends IService<Team> {
      */
     List<TeamListVO> listTeams(TeamQuery teamQuery);
 
-
+    String updateTeam(TeamUpdateRequest teamUpdateRequest, HttpServletRequest request);
+    boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request);
+    boolean quitTeam(Long teamId, HttpServletRequest request);
+    boolean deleteTeam(Long teamId, HttpServletRequest request);
 }

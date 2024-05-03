@@ -6,6 +6,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface UserTeamService extends IService<UserTeam> {
-
-
+    long getCurrentTeamJoinCount(String teamId);
 }
