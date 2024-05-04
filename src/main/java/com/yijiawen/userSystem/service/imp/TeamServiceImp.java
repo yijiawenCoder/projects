@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yijiawen.userSystem.common.ErrorCode;
 import com.yijiawen.userSystem.mapper.UserTeamMapper;
 import com.yijiawen.userSystem.model.dto.TeamQuery;
+import com.yijiawen.userSystem.model.dto.request.TeamDeleteRequest;
 import com.yijiawen.userSystem.model.dto.request.TeamJoinRequest;
 import com.yijiawen.userSystem.model.dto.request.TeamQuitRequest;
 import com.yijiawen.userSystem.model.dto.request.TeamUpdateRequest;
@@ -30,6 +31,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -302,28 +304,51 @@ public class TeamServiceImp extends ServiceImpl<TeamMapper, Team>
                 queryWrapper.eq("teamId", team.getTeamId());
                 userTeamQueryWrapper.last("order by joinTime  asc limit 2");
                 List<UserTeam> userTeamList = userTeamService.list(userTeamQueryWrapper);
-                if(CollectionUtils.isEmpty(userTeamList) || userTeamList.size() < 2){
+                if (CollectionUtils.isEmpty(userTeamList) || userTeamList.size() < 2) {
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR);
                 }
                 UserTeam userTeam = userTeamList.get(1);
                 //更新新队长id
                 Team updateTeam = new Team();
                 updateTeam.setTeamId(userTeam.getUserId());
-               if(!this.updateById(updateTeam)){
-                   throw new BusinessException(ErrorCode.SYSTEM_ERROR);
-               }
+                if (!this.updateById(updateTeam)) {
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+                }
                 //删除原队长关系
-          QueryWrapper<UserTeam> teamLeaderQueryWrapper = new QueryWrapper<>();
-          teamLeaderQueryWrapper.eq("teamId", team.getTeamId());
-          teamLeaderQueryWrapper.eq("userId", loginUser.getUserId());
-         return userTeamService.remove(teamLeaderQueryWrapper);
+                QueryWrapper<UserTeam> teamLeaderQueryWrapper = new QueryWrapper<>();
+                teamLeaderQueryWrapper.eq("teamId", team.getTeamId());
+                teamLeaderQueryWrapper.eq("userId", loginUser.getUserId());
+                return userTeamService.remove(teamLeaderQueryWrapper);
+            } else {
+                QueryWrapper<UserTeam> teamLeaderQueryWrapper = new QueryWrapper<>();
+                teamLeaderQueryWrapper.eq("teamId", team.getTeamId());
+                teamLeaderQueryWrapper.eq("userId", loginUser.getUserId());
+                return userTeamService.remove(teamLeaderQueryWrapper);
             }
         }
-        return false;
+        return true;
     }
 
     @Override
-    public boolean deleteTeam(Long teamId, HttpServletRequest request) {
-        return false;
+    @Transactional(rollbackFor =  Exception.class)
+    public boolean deleteTeam(TeamDeleteRequest teamDeleteRequest, HttpServletRequest request) {
+        if (teamDeleteRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERRORS);
+        }
+        Team team = this.getById(teamDeleteRequest.getTeamId());
+        if (team == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERRORS);
+        }
+        User loginUser = userService.getLoginUser(request);
+        if (!team.getUserId().equals(loginUser.getUserId())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERRORS, "无权限删除");
+        }
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teamId", team.getTeamId());
+        boolean res = userTeamService.remove(queryWrapper);
+        if (!res) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "删除失败");
+        }
+        return this.removeById(team.getTeamId());
     }
 }

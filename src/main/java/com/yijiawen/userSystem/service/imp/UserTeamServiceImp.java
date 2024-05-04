@@ -17,7 +17,7 @@ public class UserTeamServiceImp extends ServiceImpl<UserTeamMapper, UserTeam>
     @Override
     public long getCurrentTeamJoinCount(String teamId) {
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("team_id", teamId);
+        queryWrapper.eq("teamId", teamId);
         long count = this.count(queryWrapper);
         return count;
     }

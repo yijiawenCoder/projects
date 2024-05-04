@@ -131,10 +131,10 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
 
         }
         //查询账户是否存在
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         User loginUser = userMapper.selectOne(queryWrapper);
-        if (loginUser.equals(null)) {
+        if (loginUser==null) {
             throw new BusinessException(ErrorCode.PARAMS_ERRORS, "用户不存在");
         }
         if (!passwordEncoder.matches(userPassword, loginUser.getUserPassword())) {
@@ -158,8 +158,8 @@ public class UserServiceImp extends ServiceImpl<UserMapper, User>
         if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
             throw new BusinessException(ErrorCode.NO_LOGIN, "未登录");
         }
-        User CurrentUser = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
-        return CurrentUser;
+        User u = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        return u;
 
     }
 

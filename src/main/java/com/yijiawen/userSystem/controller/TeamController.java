@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.yijiawen.userSystem.common.BaseResponse;
 import com.yijiawen.userSystem.common.ErrorCode;
 import com.yijiawen.userSystem.model.dto.TeamQuery;
+import com.yijiawen.userSystem.model.dto.request.TeamDeleteRequest;
 import com.yijiawen.userSystem.model.dto.request.TeamJoinRequest;
 import com.yijiawen.userSystem.model.dto.request.TeamQuitRequest;
 import com.yijiawen.userSystem.model.dto.request.TeamUpdateRequest;
@@ -83,4 +84,14 @@ public class TeamController {
         }
         return ResultUtil.success(teamService.quitTeam(teamQuitRequest, request));
     }
+    @PostMapping("/deleteTeam")
+    public BaseResponse<Boolean> deleteTeam(@RequestBody TeamDeleteRequest teamDeleteRequest, HttpServletRequest request) {
+        if(teamDeleteRequest==null){
+            throw new BusinessException(ErrorCode.PARAMS_ERRORS);
+        }
+        boolean deleteTeam = teamService.deleteTeam(teamDeleteRequest, request);
+        return ResultUtil.success(deleteTeam);
+
+    }
+
 }
