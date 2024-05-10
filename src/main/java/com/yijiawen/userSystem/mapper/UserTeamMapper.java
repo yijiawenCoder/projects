@@ -11,4 +11,5 @@ public interface UserTeamMapper extends BaseMapper<UserTeam> {
     @Select({ "select u.avatar from user u\n" +
             "left join user_team ut on teamId = #{teamId} and u.userId = ut.userId"})
     List<String> joinUserAvatarUrl(@Param("teamId")String teamId);
+    //请尊重原创
 }
